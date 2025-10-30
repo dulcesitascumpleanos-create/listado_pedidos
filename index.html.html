@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MM Impresiones - Sistema de Pedidos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .form-section {
+            padding: 25px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #495057;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-export {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-export:hover {
+            background: #218838;
+        }
+        
+        .filter-section {
+            padding: 20px 25px;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-section label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .status-select {
+            padding: 6px 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .status-select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .table-container {
+            padding: 25px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 13px;
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        
+        td {
+            padding: 10px 8px;
+            border: 1px solid #dee2e6;
+        }
+        
+        tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tr:hover {
+            background: #e9ecef;
+        }
+        
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .status-cola { background: #ffc107; color: #000; }
+        .status-ripeado { background: #17a2b8; color: white; }
+        .status-impreso { background: #007bff; color: white; }
+        .status-entregado { background: #28a745; color: white; }
+        
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn-action {
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 4px;
+        }
+        
+        .btn-edit {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .stats {
+            padding: 20px 25px;
+            background: #f8f9fa;
+            border-top: 2px solid #e9ecef;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+            font-size: 14px;
+        }
+        
+        .empty-message {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+            font-size: 18px;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+            
+            .header {
+                background: white;
+                color: black;
+                border-bottom: 3px solid #667eea;
+            }
+            
+            .form-section,
+            .btn-group,
+            .actions {
+                display: none !important;
+            }
+            
+            table {
+                font-size: 10px;
+            }
+            
+            th, td {
+                padding: 6px 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖨️ MM IMPRESIONES</h1>
+            <p>Sistema de Gestión de Pedidos</p>
+        </div>
+        
+        <div class="form-section">
+            <form id="orderForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre Cliente *</label>
+                        <input type="text" id="nombreCliente" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="telefono">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Fecha de Pedido *</label>
+                        <input type="date" id="fechaPedido" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo de Producto *</label>
+                        <input type="text" id="tipoProducto" placeholder="Ej: Banner, Vinilo, Lona" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Medidas *</label>
+                        <input type="text" id="medidas" placeholder="Ej: 2x1 metros" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Diseño *</label>
+                        <select id="diseno" required>
+                            <option value="Con diseño">Con diseño</option>
+                            <option value="Sin diseño">Sin diseño</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Terminaciones *</label>
+                        <select id="terminaciones" required>
+                            <option value="Sin terminaciones">Sin terminaciones</option>
+                            <option value="Ojetillos">Ojetillos</option>
+                            <option value="Cordel para colgar">Cordel para colgar</option>
+                            <option value="Paloma">Paloma</option>
+                            <option value="Roller">Roller</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Estado *</label>
+                        <select id="estado" required>
+                            <option value="En cola">En cola</option>
+                            <option value="Ripeado">Ripeado</option>
+                            <option value="Impreso">Impreso</option>
+                            <option value="Entregado">Entregado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>Observaciones</label>
+                        <textarea id="observaciones" placeholder="Notas adicionales sobre el pedido"></textarea>
+                    </div>
+                </div>
+                
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">➕ Agregar Pedido</button>
+                    <button type="button" class="btn-secondary" onclick="clearForm()">🔄 Limpiar</button>
+                    <button type="button" class="btn-export" onclick="exportToExcel()">📊 Exportar a Excel</button>
+                    <button type="button" class="btn-secondary" onclick="window.print()">🖨️ Imprimir</button>
+                </div>
+            </form>
+        </div>
+        
+        <div class="filter-section">
+            <label>🔍 Filtrar por estado:</label>
+            <button class="filter-btn active" onclick="filterOrders('Todos')">Todos</button>
+            <button class="filter-btn" onclick="filterOrders('En cola')">En cola</button>
+            <button class="filter-btn" onclick="filterOrders('Ripeado')">Ripeado</button>
+            <button class="filter-btn" onclick="filterOrders('Impreso')">Impreso</button>
+            <button class="filter-btn" onclick="filterOrders('Entregado')">Entregado</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="ordersTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre Cliente</th>
+                        <th>Teléfono</th>
+                        <th>Fecha Pedido</th>
+                        <th>Tipo Producto</th>
+                        <th>Medidas</th>
+                        <th>Diseño</th>
+                        <th>Terminaciones</th>
+                        <th>Estado</th>
+                        <th>Observaciones</th>
+                        <th class="no-print">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersBody">
+                    <tr>
+                        <td colspan="11" class="empty-message">No hay pedidos registrados. ¡Agrega tu primer pedido!</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalPedidos">0</div>
+                <div class="stat-label">Total Pedidos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="enCola">0</div>
+                <div class="stat-label">En Cola</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="ripeados">0</div>
+                <div class="stat-label">Ripeados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="impresos">0</div>
+                <div class="stat-label">Impresos</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="entregados">0</div>
+                <div class="stat-label">Entregados</div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let orders = [];
+        let editingId = null;
+        let nextId = 1;
+        let currentFilter = 'Todos';
+        
+        // Cargar datos del almacenamiento local al iniciar
+        function loadData() {
+            const savedOrders = localStorage.getItem('mmimpresiones_orders');
+            const savedNextId = localStorage.getItem('mmimpresiones_nextid');
+            
+            if (savedOrders) {
+                orders = JSON.parse(savedOrders);
+            }
+            
+            if (savedNextId) {
+                nextId = parseInt(savedNextId);
+            }
+            
+            renderOrders();
+        }
+        
+        // Guardar datos en el almacenamiento local
+        function saveData() {
+            localStorage.setItem('mmimpresiones_orders', JSON.stringify(orders));
+            localStorage.setItem('mmimpresiones_nextid', nextId.toString());
+        }
+        
+        // Establecer fecha actual por defecto
+        document.getElementById('fechaPedido').valueAsDate = new Date();
+        
+        // Manejar envío del formulario
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const order = {
+                id: editingId || nextId++,
+                nombreCliente: document.getElementById('nombreCliente').value,
+                telefono: document.getElementById('telefono').value,
+                fechaPedido: document.getElementById('fechaPedido').value,
+                tipoProducto: document.getElementById('tipoProducto').value,
+                medidas: document.getElementById('medidas').value,
+                diseno: document.getElementById('diseno').value,
+                terminaciones: document.getElementById('terminaciones').value,
+                estado: document.getElementById('estado').value,
+                observaciones: document.getElementById('observaciones').value
+            };
+            
+            if (editingId) {
+                const index = orders.findIndex(o => o.id === editingId);
+                orders[index] = order;
+                editingId = null;
+                document.querySelector('.btn-primary').textContent = '➕ Agregar Pedido';
+            } else {
+                orders.push(order);
+            }
+            
+            saveData();
+            clearForm();
+            renderOrders();
+        });
+        
+        function clearForm() {
+            document.getElementById('orderForm').reset();
+            document.getElementById('fechaPedido').valueAsDate = new Date();
+            editingId = null;
+            document.querySelector('.btn-primary').textContent = '➕ Agregar Pedido';
+        }
+        
+        function editOrder(id) {
+            const order = orders.find(o => o.id === id);
+            if (!order) return;
+            
+            document.getElementById('nombreCliente').value = order.nombreCliente;
+            document.getElementById('telefono').value = order.telefono;
+            document.getElementById('fechaPedido').value = order.fechaPedido;
+            document.getElementById('tipoProducto').value = order.tipoProducto;
+            document.getElementById('medidas').value = order.medidas;
+            document.getElementById('diseno').value = order.diseno;
+            document.getElementById('terminaciones').value = order.terminaciones || 'Sin terminaciones';
+            document.getElementById('estado').value = order.estado;
+            document.getElementById('observaciones').value = order.observaciones;
+            
+            editingId = id;
+            document.querySelector('.btn-primary').textContent = '💾 Guardar Cambios';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+        
+        function deleteOrder(id) {
+            if (confirm('¿Estás seguro de eliminar este pedido?')) {
+                orders = orders.filter(o => o.id !== id);
+                saveData();
+                renderOrders();
+            }
+        }
+        
+        function changeStatus(id, newStatus) {
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                order.estado = newStatus;
+                saveData();
+                renderOrders();
+            }
+        }
+        
+        function filterOrders(filter) {
+            currentFilter = filter;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === filter) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            renderOrders();
+        }
+        
+        function getFilteredOrders() {
+            if (currentFilter === 'Todos') {
+                return orders;
+            }
+            return orders.filter(o => o.estado === currentFilter);
+        }
+        
+        function getStatusClass(estado) {
+            const map = {
+                'En cola': 'status-cola',
+                'Ripeado': 'status-ripeado',
+                'Impreso': 'status-impreso',
+                'Entregado': 'status-entregado'
+            };
+            return map[estado] || 'status-cola';
+        }
+        
+        function getStatusColor(estado) {
+            const map = {
+                'En cola': '#ffc107',
+                'Ripeado': '#17a2b8',
+                'Impreso': '#007bff',
+                'Entregado': '#28a745'
+            };
+            return map[estado] || '#ffc107';
+        }
+        
+        function renderOrders() {
+            const tbody = document.getElementById('ordersBody');
+            const filteredOrders = getFilteredOrders();
+            
+            if (filteredOrders.length === 0) {
+                const mensaje = currentFilter === 'Todos' 
+                    ? 'No hay pedidos registrados. ¡Agrega tu primer pedido!'
+                    : `No hay pedidos con estado "${currentFilter}"`;
+                tbody.innerHTML = `<tr><td colspan="11" class="empty-message">${mensaje}</td></tr>`;
+                updateStats();
+                return;
+            }
+            
+            tbody.innerHTML = filteredOrders.map(order => `
+                <tr>
+                    <td><strong>#${order.id}</strong></td>
+                    <td>${order.nombreCliente}</td>
+                    <td>${order.telefono || '-'}</td>
+                    <td>${formatDate(order.fechaPedido)}</td>
+                    <td>${order.tipoProducto}</td>
+                    <td>${order.medidas}</td>
+                    <td>${order.diseno}</td>
+                    <td>${order.terminaciones || 'Sin terminaciones'}</td>
+                    <td>
+                        <select class="status-select ${getStatusClass(order.estado)}" 
+                                onchange="changeStatus(${order.id}, this.value)"
+                                style="background-color: ${getStatusColor(order.estado)}; color: ${order.estado === 'En cola' ? '#000' : '#fff'}; border-color: ${getStatusColor(order.estado)};">
+                            <option value="En cola" ${order.estado === 'En cola' ? 'selected' : ''}>En cola</option>
+                            <option value="Ripeado" ${order.estado === 'Ripeado' ? 'selected' : ''}>Ripeado</option>
+                            <option value="Impreso" ${order.estado === 'Impreso' ? 'selected' : ''}>Impreso</option>
+                            <option value="Entregado" ${order.estado === 'Entregado' ? 'selected' : ''}>Entregado</option>
+                        </select>
+                    </td>
+                    <td>${order.observaciones || '-'}</td>
+                    <td class="no-print">
+                        <div class="actions">
+                            <button class="btn-action btn-edit" onclick="editOrder(${order.id})">✏️</button>
+                            <button class="btn-action btn-delete" onclick="deleteOrder(${order.id})">🗑️</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            updateStats();
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('es-CL');
+        }
+        
+        function updateStats() {
+            document.getElementById('totalPedidos').textContent = orders.length;
+            document.getElementById('enCola').textContent = orders.filter(o => o.estado === 'En cola').length;
+            document.getElementById('ripeados').textContent = orders.filter(o => o.estado === 'Ripeado').length;
+            document.getElementById('impresos').textContent = orders.filter(o => o.estado === 'Impreso').length;
+            document.getElementById('entregados').textContent = orders.filter(o => o.estado === 'Entregado').length;
+        }
+        
+        function exportToExcel() {
+            if (orders.length === 0) {
+                alert('No hay pedidos para exportar');
+                return;
+            }
+            
+            const data = orders.map(order => ({
+                'ID': order.id,
+                'Nombre Cliente': order.nombreCliente,
+                'Teléfono': order.telefono,
+                'Fecha Pedido': formatDate(order.fechaPedido),
+                'Tipo Producto': order.tipoProducto,
+                'Medidas': order.medidas,
+                'Diseño': order.diseno,
+                'Terminaciones': order.terminaciones || 'Sin terminaciones',
+                'Estado': order.estado,
+                'Observaciones': order.observaciones
+            }));
+            
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Pedidos');
+            
+            const fecha = new Date().toISOString().split('T')[0];
+            XLSX.writeFile(wb, `MM_Impresiones_Pedidos_${fecha}.xlsx`);
+        }
+        
+        // Cargar datos al iniciar
+        loadData();
+    </script>
+</body>
+</html>
